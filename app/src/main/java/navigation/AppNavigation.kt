@@ -39,7 +39,13 @@ fun AppNavigation() {
 
         composable("home") {
 
+            val turnoActual = turnos.firstOrNull {
+                it.estado == EstadoTurno.LLAMADO
+            }
+
             HomeScreen(
+                turnoActual = turnoActual,
+
                 onNuevoTurnoClick = {
                     navController.navigate("nuevo_turno")
                 },
@@ -50,15 +56,32 @@ fun AppNavigation() {
 
                 onAtenderSiguienteClick = {
 
+                    // Primero buscamos si ya hay un turno llamado
+                    val indiceTurnoLlamado = turnos.indexOfFirst {
+                        it.estado == EstadoTurno.LLAMADO
+                    }
+
+                    // Si ya había un turno llamado, lo pasamos a ATENDIENDO
+                    if (indiceTurnoLlamado != -1) {
+
+                        val turnoLlamado = turnos[indiceTurnoLlamado]
+
+                        turnos[indiceTurnoLlamado] = turnoLlamado.copy(
+                            estado = EstadoTurno.ATENDIENDO
+                        )
+                    }
+
+                    // Después buscamos el siguiente turno en espera
                     val indiceSiguiente = turnos.indexOfFirst {
                         it.estado == EstadoTurno.ESPERANDO
                     }
 
+                    // Si existe un turno en espera, lo llamamos
                     if (indiceSiguiente != -1) {
 
-                        val turnoActual = turnos[indiceSiguiente]
+                        val siguienteTurno = turnos[indiceSiguiente]
 
-                        turnos[indiceSiguiente] = turnoActual.copy(
+                        turnos[indiceSiguiente] = siguienteTurno.copy(
                             estado = EstadoTurno.LLAMADO
                         )
                     }
