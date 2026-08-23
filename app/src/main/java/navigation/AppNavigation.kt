@@ -46,6 +46,22 @@ fun AppNavigation() {
 
                 onListaTurnosClick = {
                     navController.navigate("lista_turnos")
+                },
+
+                onAtenderSiguienteClick = {
+
+                    val indiceSiguiente = turnos.indexOfFirst {
+                        it.estado == EstadoTurno.ESPERANDO
+                    }
+
+                    if (indiceSiguiente != -1) {
+
+                        val turnoActual = turnos[indiceSiguiente]
+
+                        turnos[indiceSiguiente] = turnoActual.copy(
+                            estado = EstadoTurno.LLAMADO
+                        )
+                    }
                 }
             )
         }
