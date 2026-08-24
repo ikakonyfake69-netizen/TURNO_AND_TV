@@ -5,5 +5,6 @@ data class Turno(
     val numero: Int = 0,
     val paciente: Paciente = Paciente(),
     val motivo: String = "",
-    val estado: EstadoTurno = EstadoTurno.ESPERANDO
+    val estado: EstadoTurno = EstadoTurno.ESPERANDO,
+    val dispositivoId: String = ""
 )

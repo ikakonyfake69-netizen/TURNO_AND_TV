@@ -1,28 +1,43 @@
 package navigation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.turno_and_tv.core.data.FirestoreTurnoRepository
 import com.example.turno_and_tv.core.model.EstadoTurno
 import com.example.turno_and_tv.core.model.Paciente
 import com.example.turno_and_tv.core.model.Turno
+import kotlinx.coroutines.launch
 import screens.HomeScreen
 import screens.ListaTurnosScreen
 import screens.LoginScreen
 import screens.NuevoTurnoScreen
 import screens.TvScreen
+import java.util.UUID
 
 @Composable
 fun AppNavigation() {
 
     val navController = rememberNavController()
 
-    val turnos = remember {
-        mutableStateListOf<Turno>()
+    val context = LocalContext.current
+
+    val repository = remember {
+        FirestoreTurnoRepository()
     }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val turnos by repository
+        .observarTurnos()
+        .collectAsState(initial = emptyList())
 
     NavHost(
         navController = navController,
@@ -68,17 +83,23 @@ fun AppNavigation() {
 
                     if (!yaHayTurnoLlamado) {
 
-                        val indiceSiguiente = turnos.indexOfFirst {
-                            it.estado == EstadoTurno.ESPERANDO
-                        }
+                        val siguienteTurno = turnos
+                            .filter {
+                                it.estado == EstadoTurno.ESPERANDO
+                            }
+                            .minByOrNull {
+                                it.numero
+                            }
 
-                        if (indiceSiguiente != -1) {
+                        if (siguienteTurno != null) {
 
-                            val siguienteTurno = turnos[indiceSiguiente]
+                            coroutineScope.launch {
 
-                            turnos[indiceSiguiente] = siguienteTurno.copy(
-                                estado = EstadoTurno.LLAMADO
-                            )
+                                repository.actualizarEstadoTurno(
+                                    turnoId = siguienteTurno.id,
+                                    nuevoEstado = EstadoTurno.LLAMADO
+                                )
+                            }
                         }
                     }
                 },
@@ -91,34 +112,38 @@ fun AppNavigation() {
 
                     if (!yaHayTurnoAtendiendo) {
 
-                        val indiceLlamado = turnos.indexOfFirst {
+                        val turnoLlamado = turnos.firstOrNull {
                             it.estado == EstadoTurno.LLAMADO
                         }
 
-                        if (indiceLlamado != -1) {
+                        if (turnoLlamado != null) {
 
-                            val turno = turnos[indiceLlamado]
+                            coroutineScope.launch {
 
-                            turnos[indiceLlamado] = turno.copy(
-                                estado = EstadoTurno.ATENDIENDO
-                            )
+                                repository.actualizarEstadoTurno(
+                                    turnoId = turnoLlamado.id,
+                                    nuevoEstado = EstadoTurno.ATENDIENDO
+                                )
+                            }
                         }
                     }
                 },
 
                 onFinalizarAtencionClick = {
 
-                    val indiceAtendiendo = turnos.indexOfFirst {
+                    val turnoAtendiendo = turnos.firstOrNull {
                         it.estado == EstadoTurno.ATENDIENDO
                     }
 
-                    if (indiceAtendiendo != -1) {
+                    if (turnoAtendiendo != null) {
 
-                        val turno = turnos[indiceAtendiendo]
+                        coroutineScope.launch {
 
-                        turnos[indiceAtendiendo] = turno.copy(
-                            estado = EstadoTurno.FINALIZADO
-                        )
+                            repository.actualizarEstadoTurno(
+                                turnoId = turnoAtendiendo.id,
+                                nuevoEstado = EstadoTurno.FINALIZADO
+                            )
+                        }
                     }
                 },
 
@@ -134,24 +159,51 @@ fun AppNavigation() {
 
                 onRegistrarTurno = { nombre, motivo ->
 
-                    val numeroTurno = turnos.size + 1
+                    val numeroTurno =
+                        (turnos.maxOfOrNull { it.numero } ?: 0) + 1
+
+                    val idTurno =
+                        UUID.randomUUID().toString()
 
                     val paciente = Paciente(
-                        id = numeroTurno.toString(),
+                        id = UUID.randomUUID().toString(),
                         nombre = nombre
                     )
 
+                    val preferences =
+                        context.getSharedPreferences(
+                            "turnomed_preferences",
+                            Context.MODE_PRIVATE
+                        )
+
+                    val dispositivoId =
+                        preferences.getString(
+                            "dispositivo_id",
+                            ""
+                        ) ?: ""
+
                     val nuevoTurno = Turno(
-                        id = numeroTurno.toString(),
+                        id = idTurno,
                         numero = numeroTurno,
                         paciente = paciente,
                         motivo = motivo,
-                        estado = EstadoTurno.ESPERANDO
+                        estado = EstadoTurno.ESPERANDO,
+                        dispositivoId = dispositivoId
                     )
 
-                    turnos.add(nuevoTurno)
+                    coroutineScope.launch {
 
-                    navController.navigate("lista_turnos")
+                        repository.crearTurno(
+                            nuevoTurno
+                        )
+
+                        navController.navigate("lista_turnos") {
+
+                            popUpTo("nuevo_turno") {
+                                inclusive = true
+                            }
+                        }
+                    }
                 },
 
                 onVolverClick = {
@@ -181,9 +233,13 @@ fun AppNavigation() {
                 it.estado == EstadoTurno.LLAMADO
             }
 
-            val siguienteTurno = turnos.firstOrNull {
-                it.estado == EstadoTurno.ESPERANDO
-            }
+            val siguienteTurno = turnos
+                .filter {
+                    it.estado == EstadoTurno.ESPERANDO
+                }
+                .minByOrNull {
+                    it.numero
+                }
 
             TvScreen(
                 turnoAtendiendo = turnoAtendiendo,

@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,9 +21,8 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Card
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
+import com.example.turno_and_tv.core.data.FirestoreTurnoRepository
 import com.example.turno_and_tv.core.model.EstadoTurno
-import com.example.turno_and_tv.core.model.Paciente
-import com.example.turno_and_tv.core.model.Turno
 import com.example.turno_and_tv.tv.ui.theme.TurnoMedTVTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,40 +31,31 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val turnoAtendiendo = Turno(
-            id = "1",
-            numero = 1,
-            paciente = Paciente(
-                id = "1",
-                nombre = "Fernando Perez"
-            ),
-            motivo = "Análisis de sangre",
-            estado = EstadoTurno.ATENDIENDO
-        )
-
-        val turnoLlamado = Turno(
-            id = "2",
-            numero = 2,
-            paciente = Paciente(
-                id = "2",
-                nombre = "Luis Miguel"
-            ),
-            motivo = "Entrega de análisis",
-            estado = EstadoTurno.LLAMADO
-        )
-
-        val siguienteTurno = Turno(
-            id = "3",
-            numero = 3,
-            paciente = Paciente(
-                id = "3",
-                nombre = "Fernanda"
-            ),
-            motivo = "Consulta general",
-            estado = EstadoTurno.ESPERANDO
-        )
-
         setContent {
+
+            val repository = remember {
+                FirestoreTurnoRepository()
+            }
+
+            val turnos by repository
+                .observarTurnos()
+                .collectAsState(initial = emptyList())
+
+            val turnoAtendiendo = turnos.firstOrNull {
+                it.estado == EstadoTurno.ATENDIENDO
+            }
+
+            val turnoLlamado = turnos.firstOrNull {
+                it.estado == EstadoTurno.LLAMADO
+            }
+
+            val siguienteTurno = turnos
+                .filter {
+                    it.estado == EstadoTurno.ESPERANDO
+                }
+                .minByOrNull {
+                    it.numero
+                }
 
             TurnoMedTVTheme {
 
@@ -112,15 +105,25 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.height(16.dp)
                                 )
 
-                                Text(
-                                    text = "#${turnoAtendiendo.numero}",
-                                    fontSize = 52.sp
-                                )
+                                if (turnoAtendiendo != null) {
 
-                                Text(
-                                    text = turnoAtendiendo.paciente.nombre,
-                                    fontSize = 28.sp
-                                )
+                                    Text(
+                                        text = "#${turnoAtendiendo.numero}",
+                                        fontSize = 52.sp
+                                    )
+
+                                    Text(
+                                        text = turnoAtendiendo.paciente.nombre,
+                                        fontSize = 28.sp
+                                    )
+
+                                } else {
+
+                                    Text(
+                                        text = "Sin turno",
+                                        fontSize = 28.sp
+                                    )
+                                }
                             }
                         }
 
@@ -143,15 +146,25 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.height(16.dp)
                                 )
 
-                                Text(
-                                    text = "#${turnoLlamado.numero}",
-                                    fontSize = 52.sp
-                                )
+                                if (turnoLlamado != null) {
 
-                                Text(
-                                    text = turnoLlamado.paciente.nombre,
-                                    fontSize = 28.sp
-                                )
+                                    Text(
+                                        text = "#${turnoLlamado.numero}",
+                                        fontSize = 52.sp
+                                    )
+
+                                    Text(
+                                        text = turnoLlamado.paciente.nombre,
+                                        fontSize = 28.sp
+                                    )
+
+                                } else {
+
+                                    Text(
+                                        text = "Sin turno",
+                                        fontSize = 28.sp
+                                    )
+                                }
                             }
                         }
                     }
@@ -165,10 +178,20 @@ class MainActivity : ComponentActivity() {
                         fontSize = 22.sp
                     )
 
-                    Text(
-                        text = "#${siguienteTurno.numero} - ${siguienteTurno.paciente.nombre}",
-                        fontSize = 32.sp
-                    )
+                    if (siguienteTurno != null) {
+
+                        Text(
+                            text = "#${siguienteTurno.numero} - ${siguienteTurno.paciente.nombre}",
+                            fontSize = 32.sp
+                        )
+
+                    } else {
+
+                        Text(
+                            text = "No hay turnos en espera",
+                            fontSize = 28.sp
+                        )
+                    }
                 }
             }
         }

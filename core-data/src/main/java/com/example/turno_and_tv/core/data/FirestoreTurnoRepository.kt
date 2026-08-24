@@ -24,7 +24,8 @@ class FirestoreTurnoRepository(
             "pacienteId" to turno.paciente.id,
             "pacienteNombre" to turno.paciente.nombre,
             "motivo" to turno.motivo,
-            "estado" to turno.estado.name
+            "estado" to turno.estado.name,
+            "dispositivoId" to turno.dispositivoId
         )
 
         turnosCollection
@@ -48,29 +49,43 @@ class FirestoreTurnoRepository(
 
                     try {
 
-                        val id = documento.getString("id") ?: documento.id
+                        val id =
+                            documento.getString("id")
+                                ?: documento.id
 
-                        val numero = documento
-                            .getLong("numero")
-                            ?.toInt()
-                            ?: 0
+                        val numero =
+                            documento.getLong("numero")
+                                ?.toInt()
+                                ?: 0
 
                         val pacienteId =
-                            documento.getString("pacienteId") ?: ""
+                            documento.getString("pacienteId")
+                                ?: ""
 
                         val pacienteNombre =
-                            documento.getString("pacienteNombre") ?: ""
+                            documento.getString("pacienteNombre")
+                                ?: ""
 
                         val motivo =
-                            documento.getString("motivo") ?: ""
+                            documento.getString("motivo")
+                                ?: ""
 
                         val estadoTexto =
                             documento.getString("estado")
                                 ?: EstadoTurno.ESPERANDO.name
 
+                        val dispositivoId =
+                            documento.getString("dispositivoId")
+                                ?: ""
+
                         val estado = try {
-                            EstadoTurno.valueOf(estadoTexto)
+
+                            EstadoTurno.valueOf(
+                                estadoTexto
+                            )
+
                         } catch (e: Exception) {
+
                             EstadoTurno.ESPERANDO
                         }
 
@@ -82,10 +97,12 @@ class FirestoreTurnoRepository(
                                 nombre = pacienteNombre
                             ),
                             motivo = motivo,
-                            estado = estado
+                            estado = estado,
+                            dispositivoId = dispositivoId
                         )
 
                     } catch (e: Exception) {
+
                         null
                     }
                 } ?: emptyList()

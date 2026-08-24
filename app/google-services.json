@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1048968366268",
+    "project_id": "turnomed-e5ef6",
+    "storage_bucket": "turnomed-e5ef6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048968366268:android:176e41c02477835557e8b9",
+        "android_client_info": {
+          "package_name": "com.example.turno_and_tv"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAckdTmoEoJOqkPNaE7loop84IQnkzS19Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
