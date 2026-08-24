@@ -11,10 +11,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.turno_and_tv.model.EstadoTurno
 import com.example.turno_and_tv.model.Turno
 
 @Composable
@@ -23,6 +25,14 @@ fun ListaTurnosScreen(
     onVolverClick: () -> Unit
 ) {
 
+    val turnosActivos = turnos.filter {
+        it.estado != EstadoTurno.FINALIZADO
+    }
+
+    val turnosFinalizados = turnos.filter {
+        it.estado == EstadoTurno.FINALIZADO
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -30,27 +40,35 @@ fun ListaTurnosScreen(
     ) {
 
         Text(
-            text = "Lista de espera"
+            text = "Lista de turnos"
         )
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier = Modifier.height(20.dp)
         )
 
-        if (turnos.isEmpty()) {
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
 
-            Text(
-                text = "No hay turnos registrados."
-            )
+            item {
+                Text(
+                    text = "Turnos activos"
+                )
+            }
 
-        } else {
+            if (turnosActivos.isEmpty()) {
 
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+                item {
+                    Text(
+                        text = "No hay turnos activos."
+                    )
+                }
 
-                    items(turnos) { turno ->
+            } else {
+
+                items(turnosActivos) { turno ->
 
                     Card(
                         modifier = Modifier.fillMaxWidth()
@@ -64,8 +82,61 @@ fun ListaTurnosScreen(
                                 text = "Turno #${turno.numero}"
                             )
 
-                            Spacer(
-                                modifier = Modifier.height(4.dp)
+                            Text(
+                                text = "Paciente: ${turno.paciente.nombre}"
+                            )
+
+                            Text(
+                                text = "Motivo: ${turno.motivo}"
+                            )
+
+                            Text(
+                                text = "Estado: ${turno.estado}"
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                HorizontalDivider()
+
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
+
+                Text(
+                    text = "Historial de turnos"
+                )
+            }
+
+            if (turnosFinalizados.isEmpty()) {
+
+                item {
+                    Text(
+                        text = "No hay turnos finalizados."
+                    )
+                }
+
+            } else {
+
+                items(turnosFinalizados) { turno ->
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+
+                            Text(
+                                text = "Turno #${turno.numero}"
                             )
 
                             Text(
@@ -77,7 +148,7 @@ fun ListaTurnosScreen(
                             )
 
                             Text(
-                                text = "Estado: ${turno.estado}"
+                                text = "Estado: FINALIZADO"
                             )
                         }
                     }

@@ -39,12 +39,17 @@ fun AppNavigation() {
 
         composable("home") {
 
-            val turnoActual = turnos.firstOrNull {
+            val turnoLlamado = turnos.firstOrNull {
                 it.estado == EstadoTurno.LLAMADO
             }
 
+            val turnoAtendiendo = turnos.firstOrNull {
+                it.estado == EstadoTurno.ATENDIENDO
+            }
+
             HomeScreen(
-                turnoActual = turnoActual,
+                turnoLlamado = turnoLlamado,
+                turnoAtendiendo = turnoAtendiendo,
 
                 onNuevoTurnoClick = {
                     navController.navigate("nuevo_turno")
@@ -54,35 +59,64 @@ fun AppNavigation() {
                     navController.navigate("lista_turnos")
                 },
 
-                onAtenderSiguienteClick = {
+                onLlamarSiguienteClick = {
 
-                    // Primero buscamos si ya hay un turno llamado
-                    val indiceTurnoLlamado = turnos.indexOfFirst {
+                    val yaHayTurnoLlamado = turnos.any {
                         it.estado == EstadoTurno.LLAMADO
                     }
 
-                    // Si ya había un turno llamado, lo pasamos a ATENDIENDO
-                    if (indiceTurnoLlamado != -1) {
+                    if (!yaHayTurnoLlamado) {
 
-                        val turnoLlamado = turnos[indiceTurnoLlamado]
+                        val indiceSiguiente = turnos.indexOfFirst {
+                            it.estado == EstadoTurno.ESPERANDO
+                        }
 
-                        turnos[indiceTurnoLlamado] = turnoLlamado.copy(
-                            estado = EstadoTurno.ATENDIENDO
-                        )
+                        if (indiceSiguiente != -1) {
+
+                            val siguienteTurno = turnos[indiceSiguiente]
+
+                            turnos[indiceSiguiente] = siguienteTurno.copy(
+                                estado = EstadoTurno.LLAMADO
+                            )
+                        }
+                    }
+                },
+
+                onIniciarAtencionClick = {
+
+                    val yaHayTurnoAtendiendo = turnos.any {
+                        it.estado == EstadoTurno.ATENDIENDO
                     }
 
-                    // Después buscamos el siguiente turno en espera
-                    val indiceSiguiente = turnos.indexOfFirst {
-                        it.estado == EstadoTurno.ESPERANDO
+                    if (!yaHayTurnoAtendiendo) {
+
+                        val indiceLlamado = turnos.indexOfFirst {
+                            it.estado == EstadoTurno.LLAMADO
+                        }
+
+                        if (indiceLlamado != -1) {
+
+                            val turno = turnos[indiceLlamado]
+
+                            turnos[indiceLlamado] = turno.copy(
+                                estado = EstadoTurno.ATENDIENDO
+                            )
+                        }
+                    }
+                },
+
+                onFinalizarAtencionClick = {
+
+                    val indiceAtendiendo = turnos.indexOfFirst {
+                        it.estado == EstadoTurno.ATENDIENDO
                     }
 
-                    // Si existe un turno en espera, lo llamamos
-                    if (indiceSiguiente != -1) {
+                    if (indiceAtendiendo != -1) {
 
-                        val siguienteTurno = turnos[indiceSiguiente]
+                        val turno = turnos[indiceAtendiendo]
 
-                        turnos[indiceSiguiente] = siguienteTurno.copy(
-                            estado = EstadoTurno.LLAMADO
+                        turnos[indiceAtendiendo] = turno.copy(
+                            estado = EstadoTurno.FINALIZADO
                         )
                     }
                 }

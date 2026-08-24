@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
@@ -16,14 +17,19 @@ import com.example.turno_and_tv.model.Turno
 
 @Composable
 fun HomeScreen(
-    turnoActual: Turno?,
+    turnoLlamado: Turno?,
+    turnoAtendiendo: Turno?,
     onNuevoTurnoClick: () -> Unit,
     onListaTurnosClick: () -> Unit,
-    onAtenderSiguienteClick: () -> Unit
+    onLlamarSiguienteClick: () -> Unit,
+    onIniciarAtencionClick: () -> Unit,
+    onFinalizarAtencionClick: () -> Unit
 ) {
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -44,43 +50,87 @@ fun HomeScreen(
             modifier = Modifier.height(24.dp)
         )
 
-        if (turnoActual != null) {
+        // TURNO LLAMADO
+        if (turnoLlamado != null) {
 
             Card {
 
-                Column {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
 
                     Text(
-                        text = "Turno actual"
+                        text = "Turno llamado"
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
                     )
 
                     Text(
-                        text = "#${turnoActual.numero}"
+                        text = "#${turnoLlamado.numero}"
                     )
 
                     Text(
-                        text = turnoActual.paciente.nombre
+                        text = turnoLlamado.paciente.nombre
                     )
 
                     Text(
-                        text = "Estado: ${turnoActual.estado}"
+                        text = "Motivo: ${turnoLlamado.motivo}"
+                    )
+
+                    Text(
+                        text = "Estado: ${turnoLlamado.estado}"
                     )
                 }
             }
 
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
         } else {
 
             Text(
                 text = "No hay ningún turno llamado"
             )
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
         }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        // TURNO QUE ESTÁ SIENDO ATENDIDO
+        if (turnoAtendiendo != null) {
+
+            Card {
+
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+
+                    Text(
+                        text = "En atención"
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
+                    )
+
+                    Text(
+                        text = "#${turnoAtendiendo.numero}"
+                    )
+
+                    Text(
+                        text = turnoAtendiendo.paciente.nombre
+                    )
+
+                    Text(
+                        text = "Estado: ${turnoAtendiendo.estado}"
+                    )
+                }
+            }
+        }
+
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Button(
             onClick = onNuevoTurnoClick
@@ -89,7 +139,7 @@ fun HomeScreen(
         }
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(10.dp)
         )
 
         Button(
@@ -99,13 +149,35 @@ fun HomeScreen(
         }
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(10.dp)
         )
 
         Button(
-            onClick = onAtenderSiguienteClick
+            onClick = onLlamarSiguienteClick
         ) {
-            Text("Atender siguiente")
+            Text("Llamar siguiente")
+        }
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
+        )
+
+        Button(
+            onClick = onIniciarAtencionClick,
+            enabled = turnoLlamado != null
+        ) {
+            Text("Iniciar atención")
+        }
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
+        )
+
+        Button(
+            onClick = onFinalizarAtencionClick,
+            enabled = turnoAtendiendo != null
+        ) {
+            Text("Finalizar atención")
         }
     }
 }
