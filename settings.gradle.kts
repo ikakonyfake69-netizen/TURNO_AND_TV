@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Turno_and_TV"
 include(":app")
- 
+include(":app-tv")
+include(":core-model")

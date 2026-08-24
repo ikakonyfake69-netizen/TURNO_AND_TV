@@ -13,6 +13,7 @@ import screens.HomeScreen
 import screens.ListaTurnosScreen
 import screens.LoginScreen
 import screens.NuevoTurnoScreen
+import screens.TvScreen
 
 @Composable
 fun AppNavigation() {
@@ -119,6 +120,10 @@ fun AppNavigation() {
                             estado = EstadoTurno.FINALIZADO
                         )
                     }
+                },
+
+                onVerTvClick = {
+                    navController.navigate("tv")
                 }
             )
         }
@@ -163,6 +168,27 @@ fun AppNavigation() {
                 onVolverClick = {
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable("tv") {
+
+            val turnoAtendiendo = turnos.firstOrNull {
+                it.estado == EstadoTurno.ATENDIENDO
+            }
+
+            val turnoLlamado = turnos.firstOrNull {
+                it.estado == EstadoTurno.LLAMADO
+            }
+
+            val siguienteTurno = turnos.firstOrNull {
+                it.estado == EstadoTurno.ESPERANDO
+            }
+
+            TvScreen(
+                turnoAtendiendo = turnoAtendiendo,
+                turnoLlamado = turnoLlamado,
+                siguienteTurno = siguienteTurno
             )
         }
     }

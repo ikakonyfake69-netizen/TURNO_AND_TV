@@ -23,7 +23,8 @@ fun HomeScreen(
     onListaTurnosClick: () -> Unit,
     onLlamarSiguienteClick: () -> Unit,
     onIniciarAtencionClick: () -> Unit,
-    onFinalizarAtencionClick: () -> Unit
+    onFinalizarAtencionClick: () -> Unit,
+    onVerTvClick: () -> Unit
 ) {
 
     Column(
@@ -50,7 +51,6 @@ fun HomeScreen(
             modifier = Modifier.height(24.dp)
         )
 
-        // TURNO LLAMADO
         if (turnoLlamado != null) {
 
             Card {
@@ -96,7 +96,6 @@ fun HomeScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        // TURNO QUE ESTÁ SIENDO ATENDIDO
         if (turnoAtendiendo != null) {
 
             Card {
@@ -178,6 +177,16 @@ fun HomeScreen(
             enabled = turnoAtendiendo != null
         ) {
             Text("Finalizar atención")
+        }
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
+        )
+
+        Button(
+            onClick = onVerTvClick
+        ) {
+            Text("Ver pantalla TV")
         }
     }
 }
