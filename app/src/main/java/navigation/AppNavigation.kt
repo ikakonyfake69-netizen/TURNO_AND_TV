@@ -6,9 +6,9 @@ import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.turno_and_tv.model.EstadoTurno
-import com.example.turno_and_tv.model.Paciente
-import com.example.turno_and_tv.model.Turno
+import com.example.turno_and_tv.core.model.EstadoTurno
+import com.example.turno_and_tv.core.model.Paciente
+import com.example.turno_and_tv.core.model.Turno
 import screens.HomeScreen
 import screens.ListaTurnosScreen
 import screens.LoginScreen

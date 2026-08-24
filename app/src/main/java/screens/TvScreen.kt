@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.turno_and_tv.model.Turno
+import com.example.turno_and_tv.core.model.Turno
 
 @Composable
 fun TvScreen(

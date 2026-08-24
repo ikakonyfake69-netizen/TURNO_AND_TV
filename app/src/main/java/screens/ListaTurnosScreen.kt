@@ -16,8 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.turno_and_tv.model.EstadoTurno
-import com.example.turno_and_tv.model.Turno
+import com.example.turno_and_tv.core.model.EstadoTurno
+import com.example.turno_and_tv.core.model.Turno
 
 @Composable
 fun ListaTurnosScreen(
